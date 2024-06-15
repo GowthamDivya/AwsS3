@@ -9,7 +9,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
@@ -18,10 +17,12 @@ import java.util.stream.Stream;
 public class S3FileUploadService {
 
     private final S3Client s3Client;
+    private final KafkaProducerService  kafkaProducerService;
 
     @Autowired
-    public S3FileUploadService(S3Client s3Client) {
+    public S3FileUploadService(S3Client s3Client, KafkaProducerService kafkaProducerService) {
         this.s3Client = s3Client;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
     public void uploadFilesInDirectory(String bucketName, String directoryPath) throws IOException {
@@ -61,7 +62,8 @@ public class S3FileUploadService {
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory)) {
                 for (Path filePath : stream) {
                     if (!Files.isDirectory(filePath)) { // Upload only files, not directories
-                        uploadFileAsync(bucketName, directory.relativize(filePath).toString(), filePath).join();
+                        String message = uploadFileAsync(bucketName, directory.relativize(filePath).toString(), filePath).join();
+                        sendMetadataToKafkaAsync(message);
                     }
                 }
             }
@@ -90,5 +92,21 @@ public class S3FileUploadService {
             return CompletableFuture.failedFuture(e);
         }
     }
+
+
+    private void sendMetadataToKafkaAsync(String uploadedFileKey) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                // Construct metadata message
+                String metadataToSend = "Metadata for file: " + uploadedFileKey;
+
+                kafkaProducerService.sendMessage(metadataToSend); // Send metadata to Kafka topic via Kafka producer service
+            } catch (Exception e) {
+                e.printStackTrace(); // Handle or log the exception as needed
+            }
+        });
+    }
+
+
 
 }

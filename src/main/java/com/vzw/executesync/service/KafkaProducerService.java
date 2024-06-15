@@ -31,4 +31,7 @@ public class KafkaProducerService {
             }
         });
     }
+
+    // Method to send metadata to Kafka topic asynchronously
+
 }
