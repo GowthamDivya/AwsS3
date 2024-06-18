@@ -1,13 +1,39 @@
 package com.vzw.executesync.execync;
 
 import com.vzw.executesync.common.entities.ExecsyncConfig;
-import com.vzw.executesync.execync.IExecuteSync;
-
-import java.io.IOException;
+import com.vzw.executesync.common.entities.FileIngestion;
+import com.vzw.executesync.common.repositories.ExecsyncConfigRepository;
+import com.vzw.executesync.common.repositories.FileIngestionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractExecuteSync implements IExecuteSync {
-    public abstract void metadataTopicPush(ExecsyncConfig execsyncConfig);
+    @Autowired
+    private ExecsyncConfigRepository execsyncConfigRepository;
 
-    public abstract void readFromSource(ExecsyncConfig execsyncConfig) throws IOException;
-    // Common methods or properties for sync operations
+    @Autowired
+    private FileIngestionRepository fileIngestionStatusRepository;
+
+    @Override
+    public ExecsyncConfig readFromSource(Integer configId) {
+        // Read the file path from ExecsyncConfig table
+        ExecsyncConfig config = execsyncConfigRepository.findById(configId).orElseThrow(
+                () -> new IllegalArgumentException("Invalid config ID: " + configId)
+        );
+        return config;
+    }
+
+    @Override
+    public void updateStatus(Integer fileIngestionId, String status) {
+        // Update the status in FileIngestionStatus table
+        FileIngestion fileIngestionStatus = fileIngestionStatusRepository.findById(fileIngestionId).orElseThrow(
+                () -> new IllegalArgumentException("Invalid file ingestion ID: " + fileIngestionId)
+        );
+        fileIngestionStatus.setStatus(status);
+        fileIngestionStatusRepository.save(fileIngestionStatus);
+    }
+
+    public abstract String copyToS3(ExecsyncConfig config);
+
+
+    public abstract void metadataTopicPush(ExecsyncConfig config, String metadata);
 }
