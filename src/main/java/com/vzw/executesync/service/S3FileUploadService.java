@@ -54,7 +54,7 @@ public class S3FileUploadService {
 
     // Method to upload all files in a directory asynchronously
     @Async
-    public CompletableFuture<Void> uploadFilesInDirectoryAsync(String bucketName, String directoryPath) {
+    public void uploadFilesInDirectoryAsync(String bucketName, String directoryPath) {
         try {
             Path directory = Path.of(directoryPath);
 
@@ -68,9 +68,9 @@ public class S3FileUploadService {
                 }
             }
 
-            return CompletableFuture.completedFuture(null);
+            CompletableFuture.completedFuture(null);
         } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
+            CompletableFuture.failedFuture(e);
         }
     }
 
