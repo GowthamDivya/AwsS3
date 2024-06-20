@@ -16,10 +16,9 @@ public abstract class AbstractExecuteSync implements IExecuteSync {
     @Override
     public ExecsyncConfig readFromSource(Integer configId) {
         // Read the file path from ExecsyncConfig table
-        ExecsyncConfig config = execsyncConfigRepository.findById(configId).orElseThrow(
+        return execsyncConfigRepository.findById(configId).orElseThrow(
                 () -> new IllegalArgumentException("Invalid config ID: " + configId)
         );
-        return config;
     }
 
     @Override

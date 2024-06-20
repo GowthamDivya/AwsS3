@@ -2,17 +2,19 @@ package com.vzw.executesync.common.entities;
 
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "execsync_config")
-@Getter
-@Setter
-@ToString
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class ExecsyncConfig {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -87,6 +89,5 @@ public class ExecsyncConfig {
 
     @Column(name = "date_modified")
     private Timestamp dateModified;
-
 
 }

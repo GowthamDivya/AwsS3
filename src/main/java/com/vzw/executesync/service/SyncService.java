@@ -21,11 +21,11 @@ public class SyncService {
     @Value("aws.s3.bucketName")
     String bucket;
 
-    @PostConstruct
+
     public void performSync(Integer configId, Integer fileIngestionId) throws IOException {
 
         ExecsyncConfig execsyncConfig = executeSync.readFromSource(configId);
-
+        System.out.println("execsyncConfig = " + execsyncConfig);
         // Step 2: Update status to "in progress"
         executeSync.updateStatus(execsyncConfig.getId(), "in progress");
 
