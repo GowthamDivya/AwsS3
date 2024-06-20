@@ -7,10 +7,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.util.Optional;
-
 @SpringBootApplication
-public class ExecutesyncApplication implements CommandLineRunner {
+public class ExecutesyncApplication  {
 
     @Autowired
     ExecsyncConfigRepository execsyncConfigRepository;
@@ -20,15 +18,5 @@ public class ExecutesyncApplication implements CommandLineRunner {
     }
 
 
-    @Override
-    public void run(String... args) throws Exception {
-        Optional<ExecsyncConfig> byId = execsyncConfigRepository.findById(1);
-        if (byId.isPresent()) {
-            System.out.println(byId.get());
-        } else {
-            System.out.println("byId = is not found");
-        }
-
-
-    }
+//
 }

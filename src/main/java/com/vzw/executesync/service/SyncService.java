@@ -2,6 +2,7 @@ package com.vzw.executesync.service;
 
 import com.vzw.executesync.common.entities.ExecsyncConfig;
 import com.vzw.executesync.execync.ExecuteSyncImpl;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,12 +12,11 @@ public class SyncService {
     @Autowired
     private ExecuteSyncImpl executeSync;
 
+    @PostConstruct
     public void performSync(Integer configId, Integer fileIngestionId) {
-        // Step 1: Read the source file path
-
 
         ExecsyncConfig execsyncConfig = executeSync.readFromSource(configId);
-        
+
         // Step 2: Update status to "in progress"
         executeSync.updateStatus(execsyncConfig.getId(), "in progress");
 
@@ -27,6 +27,6 @@ public class SyncService {
         executeSync.updateStatus(fileIngestionId, "completed");
 
         // Step 5: Push metadata to Kafka topic
-        executeSync.metadataTopicPush(execsyncConfig,metadata);
+        executeSync.metadataTopicPush(execsyncConfig, metadata);
     }
 }
