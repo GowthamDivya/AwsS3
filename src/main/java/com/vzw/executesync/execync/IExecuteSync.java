@@ -5,8 +5,13 @@ import com.vzw.executesync.common.entities.ExecsyncConfig;
 import java.io.IOException;
 
 public interface IExecuteSync {
-    void executeSync() throws IOException;
-    void copytoS3(ExecsyncConfig execsyncConfig) throws IOException;
-    void metadataTopicPush();
-    void readFromSource();
+    String copyToS3(ExecsyncConfig filePath) throws IOException;
+
+    void metadataTopicPush(ExecsyncConfig config ,String metadata);
+
+    ExecsyncConfig readFromSource(Integer configId);
+
+
+    void updateStatus(Integer fileIngestionId, String status);
 }
+
