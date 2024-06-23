@@ -107,6 +107,35 @@ public class S3FileUploadService {
         });
     }
 
+    public Map<String, String> uploadFile(String filePath, String bucketName, String keyName) throws IOException {
+        Path path = Paths.get(filePath);
+
+        // Use the original file name as keyName if not provided
+        if (keyName == null || keyName.isEmpty()) {
+            keyName = path.getFileName().toString();
+        }
+
+        try {
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(keyName)
+                    .build();
+
+            PutObjectResponse putObjectResponse = s3Client.putObject(putObjectRequest, path);
+
+            Map<String, String> metadata = new HashMap<>();
+            metadata.put("FileName", keyName);
+            metadata.put("FileSize", String.valueOf(Files.size(path)));
+            metadata.put("ContentType", Files.probeContentType(path));
+            metadata.put("ETag", putObjectResponse.eTag());
+            metadata.put("VersionId", putObjectResponse.versionId());
+            metadata.put("FileURL", String.format("https://%s.s3.amazonaws.com/%s", bucketName, keyName));
+
+            return metadata;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload file", e);
+        }
+    }
 
 
 }
