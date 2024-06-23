@@ -106,14 +106,10 @@ public class S3FileUploadService {
             }
         });
     }
-
-    public Map<String, String> uploadFile(String filePath, String bucketName, String keyName) throws IOException {
+    
+public String uploadFile(String filePath, String bucketName) throws IOException {
         Path path = Paths.get(filePath);
-
-        // Use the original file name as keyName if not provided
-        if (keyName == null || keyName.isEmpty()) {
-            keyName = path.getFileName().toString();
-        }
+        String keyName = path.getFileName().toString(); // Extract filename from file path
 
         try {
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -123,19 +119,19 @@ public class S3FileUploadService {
 
             PutObjectResponse putObjectResponse = s3Client.putObject(putObjectRequest, path);
 
-            Map<String, String> metadata = new HashMap<>();
-            metadata.put("FileName", keyName);
-            metadata.put("FileSize", String.valueOf(Files.size(path)));
-            metadata.put("ContentType", Files.probeContentType(path));
-            metadata.put("ETag", putObjectResponse.eTag());
-            metadata.put("VersionId", putObjectResponse.versionId());
-            metadata.put("FileURL", String.format("https://%s.s3.amazonaws.com/%s", bucketName, keyName));
+            long fileSize = Files.size(path);
+            String contentType = Files.probeContentType(path);
+            String eTag = putObjectResponse.eTag();
+            String versionId = putObjectResponse.versionId();
+            String fileURL = String.format("https://%s.s3.amazonaws.com/%s", bucketName, keyName);
 
-            return metadata;
+            return String.format("FileName: %s, FileSize: %d, ContentType: %s, ETag: %s, VersionId: %s, FileURL: %s",
+                    keyName, fileSize, contentType, eTag, versionId, fileURL);
         } catch (Exception e) {
             throw new RuntimeException("Failed to upload file", e);
         }
     }
+
 
 
 }
